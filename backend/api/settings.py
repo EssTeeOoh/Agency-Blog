@@ -154,20 +154,17 @@ EMAIL_HOST = "smtp-relay.brevo.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="a12e95001@smtp-brevo.com")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = config(
-    "DEFAULT_FROM_EMAIL",
-    default="Tee from Teeooh Solutions <essteeooh@gmail.com>",
-)
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # App-specific
-ADMIN_EMAIL = config("ADMIN_EMAIL", default="essteeooh@gmail.com")
-SITE_URL = config("SITE_URL", default="http://127.0.0.1:3000")
+ADMIN_EMAIL = config("ADMIN_EMAIL")
+SITE_URL = config("SITE_URL")
 
 # ─────────────────────────────────────────────
-# Logging — writes errors to console + file
+# Logging — console only (Render captures all stdout)
 # ─────────────────────────────────────────────
 LOGGING = {
     "version": 1,
@@ -183,11 +180,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
-            "formatter": "verbose",
-        },
     },
     "root": {
         "handlers": ["console"],
@@ -195,7 +187,7 @@ LOGGING = {
     },
     "loggers": {
         "apicore": {
-            "handlers": ["console", "file"],
+            "handlers": ["console"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },
