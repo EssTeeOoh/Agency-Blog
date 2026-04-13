@@ -108,7 +108,7 @@ USE_TZ = True
 # ─────────────────────────────────────────────
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 
 # ─────────────────────────────────────────────
 # Media (Cloudinary handles all uploads)
@@ -120,7 +120,7 @@ CLOUDINARY_STORAGE = {
 }
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# Kept for local dev fallback, Cloudinary overrides in production
+# Kept for local dev fallback — Cloudinary overrides in production
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 

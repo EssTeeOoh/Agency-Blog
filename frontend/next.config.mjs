@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true, // you already have this
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'http',
@@ -11,8 +11,13 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'your-project-name.railway.app', // ← change to your real Railway domain later
+        hostname: 'agency-blog.onrender.com', 
         pathname: '/media/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', // ← Cloudinary CDN
+        pathname: '/**',
       },
     ],
   },
