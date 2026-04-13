@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "cloudinary",
+    "cloudinary_storage",
     "django.contrib.staticfiles",
     "corsheaders",
     "django_ckeditor_5",
@@ -28,10 +30,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -46,7 +48,6 @@ CORS_ALLOWED_ORIGINS = config(
     default="http://localhost:3000",
     cast=Csv(),
 )
-# Never use CORS_ALLOW_ALL_ORIGINS = True in production
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # True only in local dev
 
 # ─────────────────────────────────────────────
@@ -80,7 +81,6 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-        # Prevent "database is locked" on concurrent writes
         "OPTIONS": {"timeout": 20},
     }
 }
@@ -104,12 +104,23 @@ USE_I18N = True
 USE_TZ = True
 
 # ─────────────────────────────────────────────
-# Static & Media
+# Static (WhiteNoise serves static files on Render)
 # ─────────────────────────────────────────────
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"   # needed for collectstatic in production
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# ─────────────────────────────────────────────
+# Media (Cloudinary handles all uploads)
+# ─────────────────────────────────────────────
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": config("CLOUDINARY_API_KEY"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET"),
+}
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+# Kept for local dev fallback, Cloudinary overrides in production
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -121,8 +132,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "60/min",       # global anon rate limit
-        "subscribe": "4/hour",  # tighter limit on subscribe endpoint
+        "anon": "60/min",
+        "subscribe": "4/hour",
     },
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
@@ -146,7 +157,8 @@ CKEDITOR_5_CONFIGS = {
         "width": "100%",
     },
 }
-CKEDITOR_UPLOAD_PATH = "uploads/"
+# Used as folder prefix in Cloudinary
+CKEDITOR_UPLOAD_PATH = "blog-uploads/"
 
 # ─────────────────────────────────────────────
 # Email (Brevo SMTP)
@@ -161,12 +173,11 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-# App-specific
 ADMIN_EMAIL = config("ADMIN_EMAIL")
 SITE_URL = config("SITE_URL")
 
 # ─────────────────────────────────────────────
-# Logging — console only (Render captures all stdout)
+# Logging (console only — Render captures stdout)
 # ─────────────────────────────────────────────
 LOGGING = {
     "version": 1,
